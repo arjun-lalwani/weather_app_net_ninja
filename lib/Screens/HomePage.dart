@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app_net_ninja/WorldTimes.dart';
+import 'package:weather_app_net_ninja/models/WorldTimes.dart';
+import '../components/CityInfo.dart';
 import '../constants.dart';
 import 'CityPage.dart';
+import '../models/Time.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,11 +13,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Future<Time> time;
   WorldTimes worldTimeObj;
+  String cityName = 'Los_Angeles';
+  String countryName = 'America';
 
   @override
   void initState() {
     worldTimeObj = WorldTimes();
-    time = worldTimeObj.getTimeIn(city: 'Los_Angeles');
     super.initState();
   }
 
@@ -30,8 +33,35 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  _showCityPage() async {
+    final selectedLocation = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CityPage(this.worldTimeObj),
+      ),
+    );
+    if (selectedLocation != false) {
+      setState(() {
+        cityName = selectedLocation[0];
+        countryName = selectedLocation[1];
+      });
+    }
+  }
+
+  IconButton cityButton(String partOfDay) {
+    return IconButton(
+        icon: Icon(
+          Icons.location_city,
+          size: 32,
+          color: (partOfDay == "day") ? Colors.black54 : Colors.white,
+        ),
+        onPressed: this._showCityPage);
+  }
+
   @override
   Widget build(BuildContext context) {
+    time = worldTimeObj.getTimeIn(city: '$cityName', country: '$countryName');
+
     return FutureBuilder(
       future: time,
       builder: (context, snapshot) {
@@ -56,24 +86,11 @@ class _HomePageState extends State<HomePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        IconButton(
-                          icon: Icon(
-                            Icons.location_city,
-                            size: 32,
-                            color: (partOfDay == "day")
-                                ? Colors.black54
-                                : Colors.white,
-                          ),
-                          onPressed: () {
-                            var x = worldTimeObj.getCitiesToCountries();
-                            print(x);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CityPage(x)));
-                          },
+                        cityButton(partOfDay),
+                        CityInfo(
+                          partOfDay: partOfDay,
+                          cityName: '$cityName',
                         ),
-                        CityTile(partOfDay: partOfDay),
                         Text('$twelveHourClock',
                             style: (partOfDay == "day")
                                 ? kTimeDayStyle
@@ -95,37 +112,6 @@ class _HomePageState extends State<HomePage> {
           );
         }
       },
-    );
-  }
-}
-
-class CityTile extends StatelessWidget {
-  const CityTile({
-    Key key,
-    @required this.partOfDay,
-  }) : super(key: key);
-
-  final String partOfDay;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.flag,
-            size: 42,
-            color: (partOfDay == "day") ? Colors.black54 : Colors.white,
-          ),
-          SizedBox(width: 10),
-          Text(
-            "City Name",
-            style: (partOfDay == "day") ? kCityDayStyle : kCityNightStyle,
-          ),
-        ],
-      ),
     );
   }
 }

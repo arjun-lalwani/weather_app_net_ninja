@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:weather_app_net_ninja/constants.dart';
+import 'package:weather_app_net_ninja/models/WorldTimes.dart';
+import '../components/CityTile.dart';
 
 class CityPage extends StatefulWidget {
-  final Map<String, String> cityToCountries;
-
-  CityPage(this.cityToCountries);
+  final WorldTimes worldTimeObj;
+  CityPage(this.worldTimeObj);
 
   @override
   _CityPageState createState() => _CityPageState();
 }
 
 class _CityPageState extends State<CityPage> {
-  var cities;
+  var cityToCountry = {};
+  List<String> cities = [];
 
   @override
   void initState() {
-    cities = widget.cityToCountries.keys.toList();
+    cityToCountry = widget.worldTimeObj.getCitiesToCountries();
+    cities = cityToCountry.keys.toList();
     cities.sort();
     super.initState();
   }
@@ -25,6 +27,10 @@ class _CityPageState extends State<CityPage> {
     return Scaffold(
       backgroundColor: Color(0xffEEEDEF),
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.chevron_left),
+          onPressed: () => Navigator.pop(context, false),
+        ),
         title: Text('Choose Location'),
         backgroundColor: Colors.blueAccent,
       ),
@@ -32,31 +38,8 @@ class _CityPageState extends State<CityPage> {
         itemCount: cities.length,
         itemBuilder: (context, index) {
           final city = cities[index];
-          return CityTile(cityName: city);
+          return CityTile(cityName: city, countryName: cityToCountry[city]);
         },
-      ),
-    );
-  }
-}
-
-class CityTile extends StatelessWidget {
-  final String cityName;
-  CityTile({@required this.cityName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 12, left: 10, right: 10),
-      decoration: kCityTileStyle,
-      child: ListTile(
-        leading: CircleAvatar(
-          child: Icon(Icons.ac_unit),
-        ),
-        title: Text(
-          '$cityName',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
-        ),
-        onTap: () {},
       ),
     );
   }

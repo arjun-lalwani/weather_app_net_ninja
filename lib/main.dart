@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:weather_app_net_ninja/screens/HomePage.dart';
-import './Screens/CityPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,11 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      initialRoute: '/',
-      routes: {
-        '/': (context) => HomePage(),
-        '/city': (context) => CityPage({}),
-      },
+      home: HomePage(),
     );
   }
 }
